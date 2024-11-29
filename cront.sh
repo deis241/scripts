@@ -1,9 +1,36 @@
 #!/bin/bash
 
 # Configuration
-TARGET_HOST="nagios.local"  # L'adresse à surveiller
-EMAIL_RECIPIENT="desmapangou@gmail.com"  # L'adresse email qui recevra les alertes
-CHECK_INTERVAL=5  # Intervalle en minutes entre chaque vérification
+TARGET_HOST="nagios.local"
+EMAIL_RECIPIENT="desmapangou@gmail.com"
+CHECK_INTERVAL=5
+
+# Configuration SMTP
+SMTP_SERVER="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_USER="mapsondeis@gmail.com"
+SMTP_PASSWORD="ukia eefd kzyw afax"  # Utiliser un mot de passe d'application pour Gmail
+SMTP_FROM="mapsondeis@gmail.com"
+
+
+
+
+# Fonction pour envoyer un email via SMTP
+send_mail() {
+    local subject="$1"
+    local body="$2"
+    
+    # Utilisation de swaks pour l'envoi SMTP
+    swaks --from "$SMTP_FROM" \
+          --to "$EMAIL_RECIPIENT" \
+          --server "$SMTP_SERVER:$SMTP_PORT" \
+          --auth LOGIN \
+          --auth-user "$SMTP_USER" \
+          --auth-password "$SMTP_PASSWORD" \
+          --tls \
+          --header "Subject: $subject" \
+          --body "$body"
+}
 
 # Fonction pour vérifier la connectivité
 check_host() {
@@ -11,7 +38,6 @@ check_host() {
         echo "SUCCESS: $TARGET_HOST est accessible - $(date)"
         return 0
     else
-        # Création d'un message plus détaillé
         EMAIL_BODY="
 Bonjour,
 
@@ -28,17 +54,23 @@ Merci de vérifier l'état du serveur dès que possible.
 Cordialement,
 System Monitor
 "
-        echo "$EMAIL_BODY" | mail -s "ALERTE CRITIQUE: $TARGET_HOST inaccessible" $EMAIL_RECIPIENT
+        send_mail "ALERTE CRITIQUE: $TARGET_HOST inaccessible" "$EMAIL_BODY"
         return 1
     fi
 }
 
-# Création de l'entrée cron
-(crontab -l 2>/dev/null; echo "*/$CHECK_INTERVAL * * * * $(pwd)/$(basename $0)") | crontab -
+# Installation de swaks si non présent
+if ! command -v swaks &> /dev/null; then
+    echo "Installation de swaks..."
+    sudo apt-get update && sudo apt-get install -y swaks
+fi
+
+# Création de l'entrée cron avec MAILTO=""
+(crontab -l 2>/dev/null | grep -v "$(basename $0)"; echo "MAILTO=\"\""; echo "*/$CHECK_INTERVAL * * * * $(pwd)/$(basename $0)") | crontab -
 
 # Exécution du check
 check_host
 
 echo "Script de surveillance configuré!"
 echo "Une vérification sera effectuée toutes les $CHECK_INTERVAL minutes"
-echo "Les alertes seront envoyées à $EMAIL_RECIPIENT"
+echo "Les alertes seront envoyées à $EMAIL_RECIPIENT via SMTP"
