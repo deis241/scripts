@@ -2,15 +2,15 @@
 
 # Configuration
 TARGET_HOST="nagios.local"
-EMAIL_RECIPIENT="desmapangou@gmail.com"
+EMAIL_RECIPIENT="mon@mail.com"
 CHECK_INTERVAL=5
 
 # Configuration SMTP
-SMTP_SERVER="smtp.gmail.com"
-SMTP_PORT="587"
-SMTP_USER="mapsondeis@gmail.com"
-SMTP_PASSWORD="ukia eefd kzyw afax"  # Utiliser un mot de passe d'application pour Gmail
-SMTP_FROM="mapsondeis@gmail.com"
+SMTP_SERVER="smtp.xxxx.com"
+SMTP_PORT="000"
+SMTP_USER=""
+SMTP_PASSWORD=""  # Utiliser un mot de passe d'application pour Gmail
+SMTP_FROM=""
 
 
 
