@@ -5,7 +5,7 @@
 # === Configuration ===
 DB_NAME="glpidb"
 DB_USER="glpiuser"
-DB_PASS="Nsi@Pass"
+DB_PASS=""
 
 echo "🔄 Mise à jour du système..."
 sudo apt update && sudo apt upgrade -y
